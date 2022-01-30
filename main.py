@@ -1,8 +1,8 @@
 from PIL import Image
 import cv2
-import os
 import numpy as np
 import win32console, win32con
+import math
 
 compressionRate = 10  # 1000%
 AsciiChars = [ "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " ]
@@ -35,6 +35,7 @@ while(True):
            buffer += AsciiChars[index]
         buffer += '\n'
     
+    consoleBufferHandle.SetConsoleCursorPosition(win32console.PyCOORDType(0, 0))
     consoleBufferHandle.WriteConsole(buffer) # write output to console buffer
     # boom! 3 lines of code make output fps increase a lot!
     # and if you don't understand the code I wrote, that's ok, it's not a common to print things, but it really plays an important part in windows
