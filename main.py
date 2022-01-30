@@ -2,10 +2,16 @@ from PIL import Image
 import cv2
 import os
 import numpy as np
+import win32console, win32con
 
 compressionRate = 10  # 1000%
 AsciiChars = [ "#", "#", "@", "%", "=", "+", "*", ":", "-", ".", " " ]
 AsciiCharsLength = len(AsciiChars) - 1
+
+# where magic started
+consoleBufferHandle = win32console.CreateConsoleScreenBuffer(DesiredAccess = win32con.GENERIC_READ | win32con.GENERIC_WRITE, ShareMode=0, SecurityAttributes=None, Flags=1) # create console buffer
+consoleBufferHandle.SetConsoleActiveScreenBuffer() # set this handle to console buffer
+# Actually, at first I wanna use api directly, I failed, but after searching docs, I found something really interesting
 
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
@@ -22,16 +28,16 @@ while(True):
 
     pimg = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
 
-    outputArr = []
+    buffer = ''
     for y in np.arange(0, pimg.height, 1 * compressionRate):
         for x in np.arange(0, pimg.width, 1 * compressionRate):
            index = int((pimg.getpixel((x, y)) * AsciiCharsLength) / 255)
-           outputArr.append(AsciiChars[index])
-        outputArr.append('\n')
-    outputArr = ''.join(outputArr)
+           buffer += AsciiChars[index]
+        buffer += '\n'
     
-    print(outputArr) # I found that use array can decrease laggy
-    os.system('cls')  # so is this, decrease laggy
+    consoleBufferHandle.WriteConsole(buffer) # write output to console buffer
+    # boom! 3 lines of code make output fps increase a lot!
+    # and if you don't understand the code I wrote, that's ok, it's not a common to print things, but it really plays an important part in windows
 
 cap.release()
 cv2.destroyAllWindows()
